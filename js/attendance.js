@@ -217,11 +217,41 @@ function renderAttendanceCalendar(empId) {
       }
     }
 
-    html += `<div class="${classes}" title="${dateStr}">${d}</div>`;
+    html += `<div class="${classes}" style="cursor:pointer;" title="${dateStr}" onclick="handleCalendarDateClick('${dateStr}', ${isFuture})">${d}</div>`;
   }
 
   grid.innerHTML = html;
 }
+
+window.handleCalendarDateClick = function(dateStr, isFuture) {
+  if (!isFuture) {
+    Toast.info(`Selected past/present date: ${formatDateShort(dateStr)}`);
+    return;
+  }
+
+  Modal.confirm(
+    'Apply for Leave?',
+    `Would you like to apply for a leave starting on ${formatDateShort(dateStr)}?`,
+    () => {
+      // Navigate to leaves page
+      Router.navigate('leaves');
+
+      // Pre-populate input fields
+      document.getElementById('leave-from').value = dateStr;
+      document.getElementById('leave-to').value = dateStr;
+      
+      // Calculate leave duration
+      const display = document.getElementById('leave-duration-display');
+      if (display) {
+        display.style.color = '';
+        display.textContent = `1 working day (${formatDateShort(dateStr)} to ${formatDateShort(dateStr)})`;
+      }
+      
+      // Open application modal
+      Modal.open('leave-modal');
+    }
+  );
+};
 
 // Calendar navigation
 document.getElementById('cal-prev-btn').addEventListener('click', () => {

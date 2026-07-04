@@ -105,6 +105,17 @@
               <span class="field-error" id="reg-empid-error"></span>
             </div>
             <div class="form-group">
+              <label for="reg-role">Role</label>
+              <div class="input-icon-wrapper">
+                <i class="fa-solid fa-user-shield input-icon"></i>
+                <select id="reg-role" required>
+                  <option value="employee">Employee</option>
+                  <option value="admin">HR (Admin)</option>
+                </select>
+              </div>
+              <span class="field-error" id="reg-role-error"></span>
+            </div>
+            <div class="form-group">
               <label for="reg-email">Email Address</label>
               <div class="input-icon-wrapper">
                 <i class="fa-regular fa-envelope input-icon"></i>
@@ -836,7 +847,13 @@
         <!-- Profile Card -->
         <div class="profile-layout">
           <div class="card profile-avatar-card">
-            <div class="profile-avatar-large" id="profile-avatar-large">JD</div>
+            <div style="position:relative; margin: 0 auto;">
+              <div class="profile-avatar-large" id="profile-avatar-large">JD</div>
+              <label class="avatar-upload-trigger" title="Upload Profile Picture" style="position:absolute; bottom:0; right:10px; background:var(--primary-500); border-radius:50%; width:32px; height:32px; display:flex; align-items:center; justify-content:center; cursor:pointer; border:2px solid var(--card-bg); color:#fff; transition:0.2s;">
+                <i class="fa-solid fa-camera" style="font-size:0.75rem;"></i>
+                <input type="file" id="avatar-file-input" accept="image/*" style="display:none;" />
+              </label>
+            </div>
             <div class="profile-name" id="profile-name-display">Jane Doe</div>
             <div class="profile-designation" id="profile-designation-display">Software Engineer</div>
             <div class="profile-dept-badge" id="profile-dept-badge">Engineering</div>
@@ -862,6 +879,7 @@
               <button class="tab-btn active" data-tab="personal">Personal</button>
               <button class="tab-btn" data-tab="job">Job Info</button>
               <button class="tab-btn" data-tab="salary">Salary</button>
+              <button class="tab-btn" data-tab="documents">Documents</button>
             </div>
 
             <!-- Personal Tab -->
@@ -963,6 +981,37 @@
                   <label>PAN Number</label>
                   <span id="pf-pan">--</span>
                 </div>
+              </div>
+            </div>
+
+            <!-- Documents Tab -->
+            <div class="tab-content" id="tab-documents">
+              <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1.25rem;">
+                <h4 style="margin:0; font-size:var(--font-size-md); font-weight:600; color:var(--text-primary)">Verified Documents</h4>
+                <div>
+                  <label class="btn btn-sm btn-primary" style="cursor:pointer; display:inline-flex; align-items:center; gap:0.5rem;">
+                    <i class="fa-solid fa-cloud-arrow-up"></i>
+                    <span>Upload Document</span>
+                    <input type="file" id="document-file-input" style="display:none;" />
+                  </label>
+                </div>
+              </div>
+              <div class="table-wrapper">
+                <table class="data-table">
+                  <thead>
+                    <tr>
+                      <th>Document Name</th>
+                      <th>Type</th>
+                      <th>Size</th>
+                      <th>Uploaded On</th>
+                      <th>Status</th>
+                      <th>Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody id="documents-tbody">
+                    <!-- Dynamic -->
+                  </tbody>
+                </table>
               </div>
             </div>
           </div>

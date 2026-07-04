@@ -163,11 +163,21 @@ function showAppShell(user) {
   const initials = getInitials(user.firstName, user.lastName);
   const fullName = `${user.firstName} ${user.lastName}`;
 
-  document.getElementById('sidebar-avatar').textContent = initials;
+  const sidebarAvatar = document.getElementById('sidebar-avatar');
+  if (user.avatarImage) {
+    sidebarAvatar.innerHTML = `<img src="${user.avatarImage}" style="width:100%; height:100%; object-fit:cover; border-radius:50%;" />`;
+  } else {
+    sidebarAvatar.textContent = initials;
+  }
   document.getElementById('sidebar-user-name').textContent = fullName;
   document.getElementById('sidebar-user-role').textContent = user.role === 'admin' ? 'Administrator' : 'Employee';
 
-  document.getElementById('topbar-avatar').textContent = initials;
+  const topbarAvatar = document.getElementById('topbar-avatar');
+  if (user.avatarImage) {
+    topbarAvatar.innerHTML = `<img src="${user.avatarImage}" style="width:100%; height:100%; object-fit:cover; border-radius:50%;" />`;
+  } else {
+    topbarAvatar.textContent = initials;
+  }
   document.getElementById('topbar-user-name').textContent = fullName;
   document.getElementById('topbar-user-role').textContent = user.role === 'admin' ? 'Administrator' : 'Employee';
 

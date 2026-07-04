@@ -190,6 +190,7 @@ document.getElementById('register-form').addEventListener('submit', (e) => {
   const fname  = document.getElementById('reg-fname').value.trim();
   const lname  = document.getElementById('reg-lname').value.trim();
   const empid  = document.getElementById('reg-empid').value.trim().toUpperCase();
+  const role   = document.getElementById('reg-role').value;
   const email  = document.getElementById('reg-email').value.trim().toLowerCase();
   const dept   = document.getElementById('reg-dept').value;
   const pw     = document.getElementById('reg-password').value;
@@ -243,7 +244,7 @@ document.getElementById('register-form').addEventListener('submit', (e) => {
   if (!valid) return;
 
   // Store pending and show OTP
-  pendingRegData = { fname, lname, empid, email, dept, pw };
+  pendingRegData = { fname, lname, empid, role, email, dept, pw };
   pendingOTP = generateOTP();
 
   document.getElementById('verify-email-display').textContent = email;
@@ -333,21 +334,33 @@ document.getElementById('verify-form').addEventListener('submit', (e) => {
   }
 
   // Create user
-  const { fname, lname, empid, email, dept, pw } = pendingRegData;
+  const { fname, lname, empid, role, email, dept, pw } = pendingRegData;
+  
+  const isAdmin = role === 'admin';
+  const designation = isAdmin ? 'HR Manager' : 'Employee';
+  const workLocation = isAdmin ? 'Head Office — Mumbai' : 'Main Office';
+  const manager = isAdmin ? 'Board of Directors' : 'Admin User';
+  
+  // Set appropriate starting salaries for India (HR vs Employee)
+  const basic = isAdmin ? 80000 : 35000;
+  const hra = Math.round(basic * 0.4); // 40% HRA
+  const transport = isAdmin ? 3000 : 1600;
+  const medical = isAdmin ? 1500 : 1000;
+
   const newUser = {
     id: empid,
     email,
     password: pw,
-    role: 'employee',
+    role: role || 'employee',
     firstName: fname,
     lastName: lname,
-    designation: 'Employee',
+    designation,
     department: dept,
     status: 'Active',
     employmentType: 'Full-time',
     dateOfJoining: toDateString(new Date()),
-    workLocation: 'Main Office',
-    manager: 'Admin User',
+    workLocation,
+    manager,
     phone: '',
     dob: '',
     gender: '',
@@ -357,13 +370,13 @@ document.getElementById('verify-form').addEventListener('submit', (e) => {
     bank: '',
     pan: '',
     payroll: {
-      basic: 4000,
-      hra: 1000,
-      transport: 200,
-      medical: 150,
-      taxRate: 0.12,
-      pfRate: 0.05,
-      insuranceFlat: 80
+      basic,
+      hra,
+      transport,
+      medical,
+      taxRate: isAdmin ? 0.12 : 0.05,
+      pfRate: 0.12, // Standard Indian PF
+      insuranceFlat: isAdmin ? 1000 : 600
     }
   };
 

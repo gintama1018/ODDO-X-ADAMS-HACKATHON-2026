@@ -24,13 +24,21 @@ function populateProfileView(user) {
   const calc = State.calcPayroll(user.payroll);
 
   // Avatar / header
-  document.getElementById('profile-avatar-large').textContent = initials;
+  const profileAvatar = document.getElementById('profile-avatar-large');
+  if (user.avatarImage) {
+    profileAvatar.innerHTML = `<img src="${user.avatarImage}" style="width:100%; height:100%; object-fit:cover; border-radius:50%;" />`;
+  } else {
+    profileAvatar.textContent = initials;
+  }
   document.getElementById('profile-name-display').textContent = fullName;
   document.getElementById('profile-designation-display').textContent = user.designation || '--';
   document.getElementById('profile-dept-badge').textContent = user.department || '--';
   document.getElementById('profile-dept-display').textContent = user.department || '--';
   document.getElementById('profile-empid-display').textContent = user.id;
   document.getElementById('profile-email-display').textContent = user.email;
+
+  // Render Documents
+  renderDocumentsList(user);
 
   // Personal tab
   document.getElementById('pf-fullname').textContent  = fullName;
@@ -317,3 +325,142 @@ window.openViewEmployeeModal = function(user) {
 
 document.getElementById('view-emp-modal-close').addEventListener('click', () => Modal.close('view-employee-modal'));
 document.getElementById('view-emp-close-btn').addEventListener('click', () => Modal.close('view-employee-modal'));
+
+// ============================================================
+// PROFILE AVATAR & DOCUMENTS PERSISTENCE ENGINE
+// ============================================================
+function renderDocumentsList(user) {
+  const tbody = document.getElementById('documents-tbody');
+  if (!tbody) return;
+
+  // Initialize defaults if they don't exist
+  if (!user.documents) {
+    user.documents = [
+      { name: 'Aadhaar_Card.pdf', type: 'Identity ID', size: '1.2 MB', date: '2024-03-10', status: 'Verified' },
+      { name: 'PAN_Card.pdf', type: 'Tax ID', size: '840 KB', date: '2024-03-10', status: 'Verified' },
+      { name: 'Offer_Letter.pdf', type: 'Employment Document', size: '2.1 MB', date: '2024-03-12', status: 'Verified' }
+    ];
+    // Save back to state
+    State.updateUser(user.id, { documents: user.documents });
+  }
+
+  if (!user.documents.length) {
+    tbody.innerHTML = '<tr><td colspan="6" class="no-data">No documents uploaded.</td></tr>';
+    return;
+  }
+
+  tbody.innerHTML = user.documents.map((doc, idx) => `
+    <tr>
+      <td class="fw-600"><i class="fa-regular fa-file-pdf" style="color:var(--crimson-500); margin-right:8px;"></i>${doc.name}</td>
+      <td>${doc.type}</td>
+      <td>${doc.size}</td>
+      <td>${formatDateShort(doc.date)}</td>
+      <td><span class="badge badge-present">${doc.status}</span></td>
+      <td>
+        <div class="table-actions">
+          <button class="btn btn-sm btn-ghost" onclick="downloadMockDocument('${doc.name}')" title="Download Document">
+            <i class="fa-solid fa-download"></i>
+          </button>
+          <button class="btn btn-sm btn-danger" onclick="deleteDocument('${user.id}', ${idx})" title="Delete Document">
+            <i class="fa-solid fa-trash-can"></i>
+          </button>
+        </div>
+      </td>
+    </tr>
+  `).join('');
+}
+
+// Global action helpers for documents
+window.downloadMockDocument = function(name) {
+  Toast.success(`Downloading ${name} in progress...`);
+};
+
+window.deleteDocument = function(userId, index) {
+  const user = State.getUserById(userId);
+  if (!user || !user.documents) return;
+  
+  user.documents.splice(index, 1);
+  State.updateUser(userId, { documents: user.documents });
+  Toast.success('Document deleted successfully.');
+  
+  // Refresh page or list view
+  const session = State.getSession();
+  if (session && session.id === userId) {
+    renderProfilePage();
+  }
+};
+
+// Listen for Avatar Profile Picture upload
+document.getElementById('avatar-file-input')?.addEventListener('change', (e) => {
+  const file = e.target.files[0];
+  if (!file) return;
+
+  if (!file.type.startsWith('image/')) {
+    Toast.error('Please upload a valid image file.');
+    return;
+  }
+
+  const reader = new FileReader();
+  reader.onload = function(evt) {
+    const base64Str = evt.target.result;
+    const session = State.getSession();
+    if (!session) return;
+
+    // Save image to localStorage
+    State.updateUser(session.id, { avatarImage: base64Str });
+    
+    // Update session storage user reference
+    const updatedUser = State.getUserById(session.id);
+    State.setSession(updatedUser);
+    
+    Toast.success('Profile picture updated successfully!');
+    
+    // Refresh header icons and profile view
+    showAppShell(updatedUser);
+    renderProfilePage();
+  };
+  reader.readAsDataURL(file);
+});
+
+// Listen for Document uploads
+document.getElementById('document-file-input')?.addEventListener('change', (e) => {
+  const file = e.target.files[0];
+  if (!file) return;
+
+  const session = State.getSession();
+  if (!session) return;
+
+  const user = State.getUserById(session.id);
+  if (!user) return;
+
+  if (!user.documents) {
+    user.documents = [];
+  }
+
+  const sizeKB = Math.round(file.size / 1024);
+  const sizeStr = sizeKB > 1000 ? `${(sizeKB / 1024).toFixed(1)} MB` : `${sizeKB} KB`;
+  
+  const fileTypeMap = {
+    'application/pdf': 'PDF Document',
+    'image/jpeg': 'JPEG Image',
+    'image/png': 'PNG Image',
+    'application/msword': 'Word Document',
+    'application/vnd.openxmlformats-officedocument.wordprocessingml.document': 'Word Document'
+  };
+  
+  const docType = fileTypeMap[file.type] || 'Uploaded File';
+
+  const newDoc = {
+    name: file.name,
+    type: docType,
+    size: sizeStr,
+    date: toDateString(new Date()),
+    status: 'Verified'
+  };
+
+  user.documents.push(newDoc);
+  State.updateUser(user.id, { documents: user.documents });
+  
+  Toast.success(`Successfully uploaded and verified ${file.name}`);
+  renderProfilePage();
+});
