@@ -415,8 +415,10 @@ document.getElementById('avatar-file-input')?.addEventListener('change', (e) => 
     
     Toast.success('Profile picture updated successfully!');
     
-    // Refresh header icons and profile view
-    showAppShell(updatedUser);
+    // Refresh header icons and profile view without page redirection or clock duplicates
+    if (window.refreshShellIdentity) {
+      window.refreshShellIdentity(updatedUser);
+    }
     renderProfilePage();
   };
   reader.readAsDataURL(file);

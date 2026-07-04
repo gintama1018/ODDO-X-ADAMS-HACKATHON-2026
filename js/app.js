@@ -149,37 +149,60 @@ function startClock() {
   }
 
   tick();
-  setInterval(tick, 1000);
+  if (window._clockInterval) {
+    clearInterval(window._clockInterval);
+  }
+  window._clockInterval = setInterval(tick, 1000);
 }
 
 // ============================================================
 // APP SHELL — Show/hide, update UI for role
 // ============================================================
+function refreshShellIdentity(user) {
+  const initials = getInitials(user.firstName, user.lastName);
+  const fullName = `${user.firstName} ${user.lastName}`;
+
+  // Update sidebar avatar
+  const sidebarAvatar = document.getElementById('sidebar-avatar');
+  if (sidebarAvatar) {
+    if (user.avatarImage) {
+      sidebarAvatar.innerHTML = `<img src="${user.avatarImage}" style="width:100%; height:100%; object-fit:cover; border-radius:50%;" />`;
+    } else {
+      sidebarAvatar.innerHTML = '';
+      sidebarAvatar.textContent = initials;
+    }
+  }
+
+  // Update topbar avatar
+  const topbarAvatar = document.getElementById('topbar-avatar');
+  if (topbarAvatar) {
+    if (user.avatarImage) {
+      topbarAvatar.innerHTML = `<img src="${user.avatarImage}" style="width:100%; height:100%; object-fit:cover; border-radius:50%;" />`;
+    } else {
+      topbarAvatar.innerHTML = '';
+      topbarAvatar.textContent = initials;
+    }
+  }
+
+  // Names and roles
+  const sName = document.getElementById('sidebar-user-name');
+  if (sName) sName.textContent = fullName;
+  const sRole = document.getElementById('sidebar-user-role');
+  if (sRole) sRole.textContent = user.role === 'admin' ? 'Administrator' : 'Employee';
+
+  const tName = document.getElementById('topbar-user-name');
+  if (tName) tName.textContent = fullName;
+  const tRole = document.getElementById('topbar-user-role');
+  if (tRole) tRole.textContent = user.role === 'admin' ? 'Administrator' : 'Employee';
+}
+window.refreshShellIdentity = refreshShellIdentity;
+
 function showAppShell(user) {
   document.getElementById('auth-screen').classList.remove('active');
   document.getElementById('app-shell').classList.add('active');
 
-  // Update sidebar
-  const initials = getInitials(user.firstName, user.lastName);
-  const fullName = `${user.firstName} ${user.lastName}`;
-
-  const sidebarAvatar = document.getElementById('sidebar-avatar');
-  if (user.avatarImage) {
-    sidebarAvatar.innerHTML = `<img src="${user.avatarImage}" style="width:100%; height:100%; object-fit:cover; border-radius:50%;" />`;
-  } else {
-    sidebarAvatar.textContent = initials;
-  }
-  document.getElementById('sidebar-user-name').textContent = fullName;
-  document.getElementById('sidebar-user-role').textContent = user.role === 'admin' ? 'Administrator' : 'Employee';
-
-  const topbarAvatar = document.getElementById('topbar-avatar');
-  if (user.avatarImage) {
-    topbarAvatar.innerHTML = `<img src="${user.avatarImage}" style="width:100%; height:100%; object-fit:cover; border-radius:50%;" />`;
-  } else {
-    topbarAvatar.textContent = initials;
-  }
-  document.getElementById('topbar-user-name').textContent = fullName;
-  document.getElementById('topbar-user-role').textContent = user.role === 'admin' ? 'Administrator' : 'Employee';
+  // Update identities
+  refreshShellIdentity(user);
 
   // Admin menu
   const appShell = document.getElementById('app-shell');
