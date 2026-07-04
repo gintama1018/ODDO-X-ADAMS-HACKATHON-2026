@@ -466,3 +466,182 @@ document.getElementById('document-file-input')?.addEventListener('change', (e) =
   Toast.success(`Successfully uploaded and verified ${file.name}`);
   renderProfilePage();
 });
+
+// ============================================================
+// ADD EMPLOYEE MODAL CONTROLLER (Admin Only)
+// ============================================================
+document.addEventListener('DOMContentLoaded', () => {
+  const modal = document.getElementById('add-employee-modal');
+  if (!modal) return;
+
+  // Bind Open triggers
+  const openTriggers = [
+    document.getElementById('admin-add-employee-btn'),
+    document.getElementById('directory-add-employee-btn')
+  ];
+
+  openTriggers.forEach(btn => {
+    btn?.addEventListener('click', (e) => {
+      e.preventDefault();
+      
+      // Auto-generate Employee ID
+      const newId = State.generateEmployeeId();
+      document.getElementById('add-empid').value = newId;
+
+      // Reset form fields
+      const form = document.getElementById('add-employee-form');
+      form.reset();
+      form.querySelectorAll('.field-error').forEach(el => el.textContent = '');
+
+      // Pre-fill generated ID again (reset wipes it)
+      document.getElementById('add-empid').value = newId;
+      document.getElementById('add-password').value = 'Employee@123';
+      document.getElementById('add-location').value = 'Head Office — Mumbai';
+      document.getElementById('add-basic-salary').value = '45000';
+
+      // Open Modal
+      modal.style.display = 'flex';
+    });
+  });
+
+  // Bind Close / Cancel buttons
+  const closeBtns = [
+    document.getElementById('add-emp-modal-close'),
+    document.getElementById('add-emp-cancel')
+  ];
+  closeBtns.forEach(btn => {
+    btn?.addEventListener('click', () => {
+      modal.style.display = 'none';
+    });
+  });
+
+  // Submit / Add Employee
+  document.getElementById('add-emp-save')?.addEventListener('click', () => {
+    // Clear previous errors
+    document.querySelectorAll('#add-employee-form .field-error').forEach(el => el.textContent = '');
+
+    const empid = document.getElementById('add-empid').value;
+    const role = document.getElementById('add-role').value;
+    const email = document.getElementById('add-email').value.trim().toLowerCase();
+    const password = document.getElementById('add-password').value;
+    const fname = document.getElementById('add-fname').value.trim();
+    const lname = document.getElementById('add-lname').value.trim();
+    const phone = document.getElementById('add-phone').value.trim();
+    const dob = document.getElementById('add-dob').value;
+    const gender = document.getElementById('add-gender').value;
+    const blood = document.getElementById('add-blood').value;
+    const designation = document.getElementById('add-designation').value.trim();
+    const dept = document.getElementById('add-dept').value;
+    const emptype = document.getElementById('add-emptype').value;
+    const location = document.getElementById('add-location').value.trim();
+    const basicVal = parseFloat(document.getElementById('add-basic-salary').value) || 0;
+    const pan = document.getElementById('add-pan').value.trim().toUpperCase();
+
+    let isValid = true;
+
+    // Field Validations
+    if (!email) {
+      document.getElementById('add-email-error').textContent = 'Email is required.';
+      isValid = false;
+    } else if (!email.includes('@')) {
+      document.getElementById('add-email-error').textContent = 'Enter a valid email address.';
+      isValid = false;
+    } else if (State.getUserByEmail(email)) {
+      document.getElementById('add-email-error').textContent = 'An employee with this email already exists.';
+      isValid = false;
+    }
+
+    if (!password || password.length < 8) {
+      document.getElementById('add-password-error').textContent = 'Password must be at least 8 characters.';
+      isValid = false;
+    }
+
+    if (!fname) {
+      document.getElementById('add-fname-error').textContent = 'First name is required.';
+      isValid = false;
+    }
+    if (!lname) {
+      document.getElementById('add-lname-error').textContent = 'Last name is required.';
+      isValid = false;
+    }
+    if (!designation) {
+      document.getElementById('add-designation-error').textContent = 'Designation is required.';
+      isValid = false;
+    }
+    if (!dept) {
+      document.getElementById('add-dept-error').textContent = 'Please select a department.';
+      isValid = false;
+    }
+    if (pan && !/^[A-Z]{5}[0-9]{4}[A-Z]{1}$/.test(pan)) {
+      Toast.error('Invalid PAN Card format (should be ABCDE1234F).');
+      isValid = false;
+    }
+
+    if (!isValid) return;
+
+    // Build starting payroll structure
+    const basic = basicVal;
+    const hra = Math.round(basic * 0.40); // Standard 40% HRA
+    const transport = Math.round(basic * 0.05); // 5% Conveyance
+    const medical = 1250; // Standard flat medical
+
+    const newUser = {
+      id: empid,
+      email,
+      password,
+      role,
+      firstName: fname,
+      lastName: lname,
+      designation,
+      department: dept,
+      status: 'Active',
+      employmentType: emptype,
+      dateOfJoining: toDateString(new Date()),
+      workLocation: location || 'Main Office',
+      manager: role === 'admin' ? 'Board of Directors' : 'HR Manager',
+      phone,
+      dob,
+      gender,
+      address: '',
+      blood,
+      emergency: '',
+      bank: '',
+      pan,
+      payroll: {
+        basic,
+        hra,
+        transport,
+        medical,
+        taxRate: basic > 50000 ? 0.10 : 0.05,
+        pfRate: 0.12, // Standard EPF (12%)
+        insuranceFlat: basic > 50000 ? 1000 : 600
+      }
+    };
+
+    // Save to state
+    State.addUser(newUser);
+
+    // Seed default leave quota for new user
+    const curState = State.get();
+    if (!curState.leaveQuotas) curState.leaveQuotas = {};
+    curState.leaveQuotas[empid] = {
+      paid:   { total: 18, used: 0 },
+      sick:   { total: 12, used: 0 },
+      unpaid: { total: 6,  used: 0 }
+    };
+    State.set(curState);
+
+    Toast.success(`Successfully added employee: ${fname} ${lname} (${empid})`);
+    modal.style.display = 'none';
+
+    // Refresh employee table if directory page is active
+    if (window.renderEmployeesTable) {
+      window.renderEmployeesTable('', '');
+    }
+
+    // Refresh dashboard stats if dashboard page is active
+    if (window.renderAdminDashboard) {
+      window.renderAdminDashboard();
+    }
+  });
+});

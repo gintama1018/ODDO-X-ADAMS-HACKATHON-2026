@@ -1041,6 +1041,10 @@
               <option value="IT Infrastructure">IT Infrastructure</option>
               <option value="Legal &amp; Compliance">Legal &amp; Compliance</option>
             </select>
+            <button class="btn btn-secondary" id="directory-add-employee-btn">
+              <i class="fa-solid fa-user-plus"></i>
+              <span>Add Employee</span>
+            </button>
           </div>
         </div>
         <div class="card">
@@ -1347,6 +1351,147 @@
         <button class="btn btn-primary" id="profile-edit-save">
           <i class="fa-solid fa-floppy-disk"></i>
           <span>Save Changes</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Add Employee Modal (Admin Only) -->
+  <div class="modal-overlay" id="add-employee-modal" role="dialog" aria-modal="true" aria-labelledby="add-emp-modal-title" style="display:none">
+    <div class="modal modal-large">
+      <div class="modal-header">
+        <h3 class="modal-title" id="add-emp-modal-title">Add New Employee</h3>
+        <button class="modal-close-btn" id="add-emp-modal-close" aria-label="Close"><i class="fa-solid fa-xmark"></i></button>
+      </div>
+      <div class="modal-body">
+        <form id="add-employee-form" novalidate>
+          <div class="modal-section-label">Credentials & Account Details</div>
+          <div class="form-row">
+            <div class="form-group">
+              <label for="add-empid">Employee ID</label>
+              <input type="text" id="add-empid" readonly style="background:var(--surface-2); cursor:not-allowed;" />
+            </div>
+            <div class="form-group">
+              <label for="add-role">System Role</label>
+              <select id="add-role" required>
+                <option value="employee">Employee</option>
+                <option value="admin">HR (Admin)</option>
+              </select>
+            </div>
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label for="add-email">Email Address</label>
+              <input type="email" id="add-email" placeholder="name@techvision.in" required />
+              <span class="field-error" id="add-email-error"></span>
+            </div>
+            <div class="form-group">
+              <label for="add-password">Starting Password</label>
+              <input type="text" id="add-password" value="Employee@123" required />
+              <span class="field-error" id="add-password-error"></span>
+            </div>
+          </div>
+
+          <div class="modal-section-label">Personal Information</div>
+          <div class="form-row">
+            <div class="form-group">
+              <label for="add-fname">First Name</label>
+              <input type="text" id="add-fname" placeholder="Aditya" required />
+              <span class="field-error" id="add-fname-error"></span>
+            </div>
+            <div class="form-group">
+              <label for="add-lname">Last Name</label>
+              <input type="text" id="add-lname" placeholder="Joshi" required />
+              <span class="field-error" id="add-lname-error"></span>
+            </div>
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label for="add-phone">Phone Number</label>
+              <input type="tel" id="add-phone" placeholder="+91 98765 XXXXX" />
+            </div>
+            <div class="form-group">
+              <label for="add-dob">Date of Birth</label>
+              <input type="date" id="add-dob" />
+            </div>
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label for="add-gender">Gender</label>
+              <select id="add-gender">
+                <option value="">Select</option>
+                <option value="Male">Male</option>
+                <option value="Female">Female</option>
+                <option value="Other">Other</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label for="add-blood">Blood Group</label>
+              <select id="add-blood">
+                <option value="">Select</option>
+                <option>A+</option><option>A-</option>
+                <option>B+</option><option>B-</option>
+                <option>O+</option><option>O-</option>
+                <option>AB+</option><option>AB-</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="modal-section-label">Job & Salary Details</div>
+          <div class="form-row">
+            <div class="form-group">
+              <label for="add-designation">Designation</label>
+              <input type="text" id="add-designation" placeholder="Software Engineer" required />
+              <span class="field-error" id="add-designation-error"></span>
+            </div>
+            <div class="form-group">
+              <label for="add-dept">Department</label>
+              <select id="add-dept" required>
+                <option value="">Select Department</option>
+                <option value="Engineering">Engineering</option>
+                <option value="Design">Design</option>
+                <option value="Human Resources">Human Resources</option>
+                <option value="Finance & Accounts">Finance &amp; Accounts</option>
+                <option value="Sales & Marketing">Sales &amp; Marketing</option>
+                <option value="Operations">Operations</option>
+                <option value="IT Infrastructure">IT Infrastructure</option>
+                <option value="Legal & Compliance">Legal &amp; Compliance</option>
+              </select>
+              <span class="field-error" id="add-dept-error"></span>
+            </div>
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label for="add-emptype">Employment Type</label>
+              <select id="add-emptype">
+                <option>Full-time</option>
+                <option>Part-time</option>
+                <option>Contract</option>
+                <option>Intern</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label for="add-location">Work Location</label>
+              <input type="text" id="add-location" value="Head Office — Mumbai" />
+            </div>
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label for="add-basic-salary">Basic Salary (₹/month)</label>
+              <input type="number" id="add-basic-salary" value="45000" min="0" step="500" required />
+            </div>
+            <div class="form-group">
+              <label for="add-pan">PAN Number</label>
+              <input type="text" id="add-pan" placeholder="ABCDE1234F" />
+            </div>
+          </div>
+        </form>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-ghost" id="add-emp-cancel">Cancel</button>
+        <button class="btn btn-primary" id="add-emp-save">
+          <i class="fa-solid fa-user-plus"></i>
+          <span>Add Employee</span>
         </button>
       </div>
     </div>

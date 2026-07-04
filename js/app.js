@@ -398,11 +398,7 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   });
 
-  // ----- Admin add employee shortcut -----
-  const adminAddEmpBtn = document.getElementById('admin-add-employee-btn');
-  if (adminAddEmpBtn) {
-    adminAddEmpBtn.addEventListener('click', () => Router.navigate('employees'));
-  }
+  // Add employee listener is handled inside profile.js to open the modal
 
 });
 
