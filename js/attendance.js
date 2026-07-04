@@ -240,6 +240,24 @@ window.handleCalendarDateClick = function(dateStr, isFuture) {
       document.getElementById('leave-from').value = dateStr;
       document.getElementById('leave-to').value = dateStr;
       
+      // Update global leave variables
+      if (typeof leaveRangeStart !== 'undefined') {
+        leaveRangeStart = dateStr;
+        leaveRangeEnd = dateStr;
+      } else {
+        window.leaveRangeStart = dateStr;
+        window.leaveRangeEnd = dateStr;
+      }
+      
+      const fromDisp = document.getElementById('leave-from-display');
+      const toDisp = document.getElementById('leave-to-display');
+      if (fromDisp) fromDisp.textContent = formatDateShort(dateStr);
+      if (toDisp) toDisp.textContent = formatDateShort(dateStr);
+
+      if (window.renderLeaveMiniCalendar) {
+        window.renderLeaveMiniCalendar();
+      }
+
       // Calculate leave duration
       const display = document.getElementById('leave-duration-display');
       if (display) {

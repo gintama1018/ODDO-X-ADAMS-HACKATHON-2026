@@ -101,16 +101,108 @@ document.getElementById('apply-leave-btn').addEventListener('click', () => {
   document.getElementById('leave-apply-form').reset();
   document.querySelectorAll('#leave-apply-form .field-error').forEach(e => e.textContent = '');
   document.getElementById('leave-duration-display').textContent = 'Select dates to calculate duration';
+  leaveRangeStart = null;
+  leaveRangeEnd = null;
+  leaveCalMonth = new Date().getMonth();
+  leaveCalYear = new Date().getFullYear();
+  document.getElementById('leave-from').value = '';
+  document.getElementById('leave-to').value = '';
+  document.getElementById('leave-from-display').textContent = 'Select a date';
+  document.getElementById('leave-to-display').textContent = 'Select a date';
+  renderLeaveMiniCalendar();
   Modal.open('leave-modal');
 });
 
 document.getElementById('leave-modal-close').addEventListener('click', () => Modal.close('leave-modal'));
 document.getElementById('leave-cancel-btn').addEventListener('click',   () => Modal.close('leave-modal'));
 
-// Duration calculation on date change
-['leave-from', 'leave-to'].forEach(id => {
-  document.getElementById(id).addEventListener('change', updateLeaveDuration);
-});
+// ============================================================
+// LEAVE APPLY — MINI CALENDAR RANGE PICKER
+// ============================================================
+let leaveRangeStart = null;
+let leaveRangeEnd   = null;
+let leaveCalMonth   = new Date().getMonth();
+let leaveCalYear    = new Date().getFullYear();
+
+function renderLeaveMiniCalendar() {
+  const label = document.getElementById('leave-cal-month-label');
+  const grid  = document.getElementById('leave-cal-days');
+  if (!label || !grid) return;
+
+  const monthNames = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+  label.textContent = `${monthNames[leaveCalMonth]} ${leaveCalYear}`;
+
+  const firstDay = new Date(leaveCalYear, leaveCalMonth, 1);
+  const lastDay  = new Date(leaveCalYear, leaveCalMonth + 1, 0);
+  const startDow = firstDay.getDay();
+  const todayStr = toDateString(new Date());
+
+  let html = '';
+  for (let i = 0; i < startDow; i++) {
+    html += `<div class="cal-day other-month"></div>`;
+  }
+
+  for (let d = 1; d <= lastDay.getDate(); d++) {
+    const dateStr = `${leaveCalYear}-${padZ(leaveCalMonth + 1)}-${padZ(d)}`;
+    const isPast  = dateStr < todayStr;
+
+    let classes = 'cal-day';
+    if (dateStr === todayStr) classes += ' today';
+    if (isPast) classes += ' disabled-day';
+
+    if (leaveRangeStart && dateStr === leaveRangeStart) classes += ' range-start';
+    if (leaveRangeEnd && dateStr === leaveRangeEnd) classes += ' range-end';
+    if (leaveRangeStart && leaveRangeEnd && dateStr > leaveRangeStart && dateStr < leaveRangeEnd) classes += ' in-range';
+
+    html += `<div class="${classes}" title="${dateStr}" onclick="handleLeaveCalClick('${dateStr}', ${isPast})">${d}</div>`;
+  }
+
+  grid.innerHTML = html;
+}
+
+window.handleLeaveCalClick = function(dateStr, isPast) {
+  if (isPast) return;
+
+  if (!leaveRangeStart || (leaveRangeStart && leaveRangeEnd)) {
+    // Start a fresh selection
+    leaveRangeStart = dateStr;
+    leaveRangeEnd = null;
+  } else if (dateStr < leaveRangeStart) {
+    // Clicked before the start — becomes the new start
+    leaveRangeStart = dateStr;
+    leaveRangeEnd = null;
+  } else {
+    leaveRangeEnd = dateStr;
+  }
+
+  document.getElementById('leave-from').value = leaveRangeStart || '';
+  document.getElementById('leave-to').value = leaveRangeEnd || leaveRangeStart || '';
+  document.getElementById('leave-from-display').textContent = leaveRangeStart ? formatDateShort(leaveRangeStart) : 'Select a date';
+  document.getElementById('leave-to-display').textContent = (leaveRangeEnd || leaveRangeStart) ? formatDateShort(leaveRangeEnd || leaveRangeStart) : 'Select a date';
+
+  const hint = document.getElementById('leave-cal-hint');
+  hint.textContent = leaveRangeStart && !leaveRangeEnd
+    ? 'Now click an end date.'
+    : 'Click a start date, then an end date.';
+
+  renderLeaveMiniCalendar();
+  updateLeaveDuration();
+};
+
+// Bind calendar navigation buttons on load
+setTimeout(() => {
+  document.getElementById('leave-cal-prev-btn')?.addEventListener('click', () => {
+    leaveCalMonth--;
+    if (leaveCalMonth < 0) { leaveCalMonth = 11; leaveCalYear--; }
+    renderLeaveMiniCalendar();
+  });
+
+  document.getElementById('leave-cal-next-btn')?.addEventListener('click', () => {
+    leaveCalMonth++;
+    if (leaveCalMonth > 11) { leaveCalMonth = 0; leaveCalYear++; }
+    renderLeaveMiniCalendar();
+  });
+}, 500);
 
 function updateLeaveDuration() {
   const from = document.getElementById('leave-from').value;

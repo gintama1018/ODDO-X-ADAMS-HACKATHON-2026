@@ -1126,16 +1126,37 @@
             </select>
             <span class="field-error" id="leave-type-error"></span>
           </div>
-          <div class="form-row">
-            <div class="form-group">
-              <label for="leave-from">From Date</label>
-              <input type="date" id="leave-from" required />
-              <span class="field-error" id="leave-from-error"></span>
+          <div class="form-group">
+            <label>Select Date Range</label>
+            <div class="leave-range-chips">
+              <div class="leave-range-chip" id="leave-from-chip">
+                <span class="leave-range-chip-label">From</span>
+                <span class="leave-range-chip-value" id="leave-from-display">Select a date</span>
+              </div>
+              <i class="fa-solid fa-arrow-right-long leave-range-chip-arrow"></i>
+              <div class="leave-range-chip" id="leave-to-chip">
+                <span class="leave-range-chip-label">To</span>
+                <span class="leave-range-chip-value" id="leave-to-display">Select a date</span>
+              </div>
             </div>
-            <div class="form-group">
-              <label for="leave-to">To Date</label>
-              <input type="date" id="leave-to" required />
-              <span class="field-error" id="leave-to-error"></span>
+            <input type="hidden" id="leave-from" required />
+            <input type="hidden" id="leave-to" required />
+            <span class="field-error" id="leave-from-error"></span>
+            <span class="field-error" id="leave-to-error"></span>
+
+            <div class="leave-mini-calendar">
+              <div class="calendar-nav" style="margin-bottom:0.5rem;">
+                <button type="button" class="icon-btn" id="leave-cal-prev-btn" aria-label="Previous month"><i class="fa-solid fa-chevron-left"></i></button>
+                <span class="calendar-month-label" id="leave-cal-month-label">Month Year</span>
+                <button type="button" class="icon-btn" id="leave-cal-next-btn" aria-label="Next month"><i class="fa-solid fa-chevron-right"></i></button>
+              </div>
+              <div class="calendar-grid-wrapper">
+                <div class="calendar-day-headers">
+                  <span>Su</span><span>Mo</span><span>Tu</span><span>We</span><span>Th</span><span>Fr</span><span>Sa</span>
+                </div>
+                <div class="calendar-days" id="leave-cal-days"></div>
+              </div>
+              <div class="leave-cal-hint" id="leave-cal-hint">Click a start date, then an end date.</div>
             </div>
           </div>
           <div class="form-group">

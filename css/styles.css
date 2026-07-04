@@ -1942,3 +1942,17 @@ textarea { resize: vertical; min-height: 80px; }
   flex-shrink: 0;
 }
 @keyframes spin { to { transform: rotate(360deg); } }
+
+/* ============================================================
+   LEAVE CALENDAR RANGE PICKER STYLES
+   ============================================================ */
+.leave-range-chips { display: flex; align-items: center; gap: 0.75rem; margin-bottom: 0.75rem; }
+.leave-range-chip { flex: 1; background: var(--surface-2, rgba(255,255,255,0.04)); border: 1px solid var(--border-color, rgba(255,255,255,0.08)); border-radius: 10px; padding: 0.5rem 0.75rem; }
+.leave-range-chip-label { display: block; font-size: 0.7rem; color: var(--text-tertiary); text-transform: uppercase; letter-spacing: 0.03em; }
+.leave-range-chip-value { display: block; font-size: var(--font-size-sm); font-weight: 600; color: var(--text-primary); margin-top: 0.15rem; }
+.leave-range-chip-arrow { color: var(--text-tertiary); }
+.leave-mini-calendar { margin-top: 0.5rem; }
+.leave-cal-hint { font-size: 0.75rem; color: var(--text-tertiary); text-align: center; margin-top: 0.5rem; }
+.cal-day.range-start, .cal-day.range-end { background: var(--steel-500) !important; color: #fff !important; font-weight: 700 !important; }
+.cal-day.in-range { background: rgba(59,130,246,0.15) !important; }
+.cal-day.disabled-day { opacity: 0.25; pointer-events: none; }
