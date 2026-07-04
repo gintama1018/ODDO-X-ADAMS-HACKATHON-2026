@@ -1048,6 +1048,11 @@ textarea { resize: vertical; min-height: 80px; }
   transform: translateY(-1px);
   box-shadow: var(--shadow-md);
 }
+.stat-card-clickable:hover {
+  border-color: var(--primary-500) !important;
+  transform: translateY(-3px) scale(1.02) !important;
+  box-shadow: var(--shadow-lg) !important;
+}
 
 .stat-icon {
   width: 44px;

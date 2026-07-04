@@ -368,3 +368,207 @@ window.adminEditEmployee = function(empId) {
   if (!emp) return;
   openProfileEditModal(emp, true);
 };
+
+// ============================================================
+// ADMIN DASHBOARD — CLICKABLE STAT CARDS EVENT BINDINGS
+// ============================================================
+document.addEventListener('DOMContentLoaded', () => {
+  // Bind close buttons for details modal
+  document.getElementById('db-detail-modal-close')?.addEventListener('click', () => {
+    document.getElementById('dashboard-detail-modal').style.display = 'none';
+  });
+  document.getElementById('db-detail-close-btn')?.addEventListener('click', () => {
+    document.getElementById('dashboard-detail-modal').style.display = 'none';
+  });
+
+  // Card clicks
+  document.getElementById('admin-card-total')?.addEventListener('click', () => {
+    showDashboardStatDetails('total');
+  });
+  document.getElementById('admin-card-present')?.addEventListener('click', () => {
+    showDashboardStatDetails('present');
+  });
+  document.getElementById('admin-card-absent')?.addEventListener('click', () => {
+    showDashboardStatDetails('absent');
+  });
+  document.getElementById('admin-card-pending')?.addEventListener('click', () => {
+    showDashboardStatDetails('pending');
+  });
+});
+
+function showDashboardStatDetails(type) {
+  const titleEl = document.getElementById('db-detail-title');
+  const theadEl = document.getElementById('db-detail-thead');
+  const tbodyEl = document.getElementById('db-detail-tbody');
+  if (!titleEl || !theadEl || !tbodyEl) return;
+
+  const allUsers = State.getUsers().filter(u => u.role === 'employee');
+  const todayStr = toDateString(new Date());
+
+  let title = '';
+  let theadHTML = '';
+  let tbodyHTML = '';
+
+  if (type === 'total') {
+    title = 'Total Employees Directory';
+    theadHTML = `
+      <tr>
+        <th>Employee</th>
+        <th>Employee ID</th>
+        <th>Department</th>
+        <th>Designation</th>
+        <th>Status</th>
+      </tr>
+    `;
+    tbodyHTML = allUsers.map(emp => `
+      <tr>
+        <td>
+          <div class="table-emp-cell">
+            <div class="table-avatar">${getInitials(emp.firstName, emp.lastName)}</div>
+            <div class="table-emp-name">${emp.firstName} ${emp.lastName}</div>
+          </div>
+        </td>
+        <td class="fw-600">${emp.id}</td>
+        <td>${emp.department}</td>
+        <td>${emp.designation}</td>
+        <td><span class="badge ${getStatusBadgeClass(emp.status)}">${emp.status}</span></td>
+      </tr>
+    `).join('');
+
+  } else if (type === 'present') {
+    title = 'Employees Present Today';
+    theadHTML = `
+      <tr>
+        <th>Employee</th>
+        <th>Department</th>
+        <th>Check In</th>
+        <th>Check Out</th>
+        <th>Duration</th>
+        <th>Status</th>
+      </tr>
+    `;
+    const todayAtt = State.getAttendance().filter(a => a.date === todayStr);
+    if (!todayAtt.length) {
+      tbodyHTML = '<tr><td colspan="6" class="no-data">No employees checked in yet today.</td></tr>';
+    } else {
+      tbodyHTML = todayAtt.map(att => {
+        const emp = State.getUserById(att.empId);
+        const name = emp ? `${emp.firstName} ${emp.lastName}` : att.empId;
+        const dept = emp ? emp.department : '--';
+        return `
+          <tr>
+            <td>
+              <div class="table-emp-cell">
+                <div class="table-avatar">${emp ? getInitials(emp.firstName, emp.lastName) : '??'}</div>
+                <div class="table-emp-name">${name}</div>
+              </div>
+            </td>
+            <td>${dept}</td>
+            <td>${formatTime12(att.checkIn)}</td>
+            <td>${att.checkOut ? formatTime12(att.checkOut) : '<span class="text-success fw-600">Active</span>'}</td>
+            <td>${att.duration || '--'}</td>
+            <td><span class="badge ${getStatusBadgeClass(att.status)}">${att.status}</span></td>
+          </tr>
+        `;
+      }).join('');
+    }
+
+  } else if (type === 'absent') {
+    title = 'Employees Absent Today';
+    theadHTML = `
+      <tr>
+        <th>Employee</th>
+        <th>Employee ID</th>
+        <th>Department</th>
+        <th>Designation</th>
+        <th>Status Today</th>
+      </tr>
+    `;
+    const presentIds = State.getAttendance().filter(a => a.date === todayStr).map(a => a.empId);
+    const absentUsers = allUsers.filter(u => !presentIds.includes(u.id));
+
+    if (!absentUsers.length) {
+      tbodyHTML = '<tr><td colspan="5" class="no-data">100% attendance! No employees absent today.</td></tr>';
+    } else {
+      tbodyHTML = absentUsers.map(emp => {
+        const onLeave = State.getLeavesByEmp(emp.id).some(l =>
+          l.status === 'Approved' && l.from <= todayStr && l.to >= todayStr
+        );
+        const statusLabel = onLeave ? 'On Leave' : 'Absent';
+        return `
+          <tr>
+            <td>
+              <div class="table-emp-cell">
+                <div class="table-avatar">${getInitials(emp.firstName, emp.lastName)}</div>
+                <div class="table-emp-name">${emp.firstName} ${emp.lastName}</div>
+              </div>
+            </td>
+            <td class="fw-600">${emp.id}</td>
+            <td>${emp.department}</td>
+            <td>${emp.designation}</td>
+            <td><span class="badge ${getStatusBadgeClass(statusLabel)}">${statusLabel}</span></td>
+          </tr>
+        `;
+      }).join('');
+    }
+
+  } else if (type === 'pending') {
+    title = 'Pending Leave Approvals';
+    theadHTML = `
+      <tr>
+        <th>Employee</th>
+        <th>Leave Type</th>
+        <th>From Date</th>
+        <th>To Date</th>
+        <th>Days</th>
+        <th>Actions</th>
+      </tr>
+    `;
+    const pendingLeaves = State.getPendingLeaves();
+    if (!pendingLeaves.length) {
+      tbodyHTML = '<tr><td colspan="6" class="no-data">No pending leave requests.</td></tr>';
+    } else {
+      tbodyHTML = pendingLeaves.map(leave => {
+        const emp = State.getUserById(leave.empId);
+        const name = emp ? `${emp.firstName} ${emp.lastName}` : leave.empId;
+        const typeClass = getLeaveTypeBadgeClass(leave.type);
+        return `
+          <tr>
+            <td>
+              <div class="table-emp-cell">
+                <div class="table-avatar">${emp ? getInitials(emp.firstName, emp.lastName) : '??'}</div>
+                <div class="table-emp-name">${name}</div>
+              </div>
+            </td>
+            <td><span class="badge ${typeClass}">${leave.type} Leave</span></td>
+            <td class="fw-600">${formatDateShort(leave.from)}</td>
+            <td class="fw-600">${formatDateShort(leave.to)}</td>
+            <td>${leave.days}</td>
+            <td>
+              <button class="btn btn-sm btn-primary" onclick="closeDetailAndReviewLeave('${leave.id}')">
+                <i class="fa-solid fa-gavel"></i> Review
+              </button>
+            </td>
+          </tr>
+        `;
+      }).join('');
+    }
+  }
+
+  titleEl.textContent = title;
+  theadEl.innerHTML = theadHTML;
+  tbodyEl.innerHTML = tbodyHTML;
+
+  // Show modal
+  document.getElementById('dashboard-detail-modal').style.display = 'flex';
+}
+
+// Review action helper from the modal details
+window.closeDetailAndReviewLeave = function(leaveId) {
+  // Hide details modal
+  document.getElementById('dashboard-detail-modal').style.display = 'none';
+  // Open the review approvals modal
+  if (window.openApprovalModal) {
+    window.openApprovalModal(leaveId);
+  }
+};

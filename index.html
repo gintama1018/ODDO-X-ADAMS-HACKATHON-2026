@@ -434,28 +434,28 @@
 
           <!-- Admin Stats Row -->
           <div class="stats-grid stats-grid-5" id="admin-stats-grid">
-            <div class="stat-card">
+            <div class="stat-card stat-card-clickable" id="admin-card-total" style="cursor:pointer;">
               <div class="stat-icon stat-icon-blue"><i class="fa-solid fa-users"></i></div>
               <div class="stat-info">
                 <span class="stat-label">Total Employees</span>
                 <span class="stat-value" id="admin-stat-total">0</span>
               </div>
             </div>
-            <div class="stat-card">
+            <div class="stat-card stat-card-clickable" id="admin-card-present" style="cursor:pointer;">
               <div class="stat-icon stat-icon-green"><i class="fa-solid fa-user-check"></i></div>
               <div class="stat-info">
                 <span class="stat-label">Present Today</span>
                 <span class="stat-value" id="admin-stat-present">0</span>
               </div>
             </div>
-            <div class="stat-card">
+            <div class="stat-card stat-card-clickable" id="admin-card-absent" style="cursor:pointer;">
               <div class="stat-icon stat-icon-red"><i class="fa-solid fa-user-xmark"></i></div>
               <div class="stat-info">
                 <span class="stat-label">Absent Today</span>
                 <span class="stat-value" id="admin-stat-absent">0</span>
               </div>
             </div>
-            <div class="stat-card">
+            <div class="stat-card stat-card-clickable" id="admin-card-pending" style="cursor:pointer;">
               <div class="stat-icon stat-icon-amber"><i class="fa-solid fa-hourglass-half"></i></div>
               <div class="stat-info">
                 <span class="stat-label">Pending Leaves</span>
@@ -1399,6 +1399,31 @@
           <i class="fa-solid fa-floppy-disk"></i>
           <span>Save</span>
         </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Dashboard Detail List Modal (Admin Clickable Stats) -->
+  <div class="modal-overlay" id="dashboard-detail-modal" role="dialog" aria-modal="true" style="display:none">
+    <div class="modal modal-large">
+      <div class="modal-header">
+        <h3 class="modal-title" id="db-detail-title">Stat Details</h3>
+        <button class="modal-close-btn" id="db-detail-modal-close" aria-label="Close"><i class="fa-solid fa-xmark"></i></button>
+      </div>
+      <div class="modal-body" style="max-height: 450px; overflow-y: auto;">
+        <div class="table-wrapper" style="margin: 0;">
+          <table class="data-table">
+            <thead id="db-detail-thead">
+              <!-- Dynamic Headers -->
+            </thead>
+            <tbody id="db-detail-tbody">
+              <!-- Dynamic Rows -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-ghost" id="db-detail-close-btn">Close</button>
       </div>
     </div>
   </div>
