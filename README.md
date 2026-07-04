@@ -36,6 +36,9 @@ graph TD
 1. **Dynamic Client Routing**: Toggles active sections via CSS class manipulation (`.active`) without reloading the page, maintaining a persistent memory footprint.
 2. **State Management**: Implements a unified state store (`State`) with CRUD helper methods wrapping localStorage.
 3. **Data Versioning**: Automates migrations using a `DATA_VERSION` key to purge outdated state models whenever schema upgrades are deployed.
+4. **💡 Production Storage Note (LocalStorage Limitations)**: 
+   * For the demo and hackathon purposes, profile avatars and uploaded verified documents are encoded in Base64 format and stored directly within `localStorage`.
+   * *Production Recommendation*: Since browser `localStorage` enforces a strict ~5MB quota limit, a production deployment should replace this model with an external object storage API (such as AWS S3, Google Cloud Storage, or Azure Blob Storage) and save only the resulting file URLs in the database.
 
 ---
 
