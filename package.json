@@ -1,0 +1,22 @@
+{
+  "name": "techvision-hrms",
+  "version": "1.0.0",
+  "description": "TechVision India Pvt. Ltd. — Single Page Application (SPA) for HRMS",
+  "main": "index.html",
+  "scripts": {
+    "start": "npx serve .",
+    "lint": "echo \"No lint script configured yet\""
+  },
+  "keywords": [
+    "hrms",
+    "spa",
+    "vanilla-js",
+    "indian-compliance",
+    "payroll"
+  ],
+  "author": "TechVision Dev Team",
+  "license": "MIT",
+  "dependencies": {
+    "serve": "^14.2.4"
+  }
+}

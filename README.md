@@ -28,6 +28,10 @@ graph TD
     E -->|JSON Stringify/Parse| F[Browser localStorage]
 ```
 
+### Visual Architectural Flow Canvas
+![System Architecture Diagram](assets/architecture.svg)
+
+
 ### Key Technical Specs
 1. **Dynamic Client Routing**: Toggles active sections via CSS class manipulation (`.active`) without reloading the page, maintaining a persistent memory footprint.
 2. **State Management**: Implements a unified state store (`State`) with CRUD helper methods wrapping localStorage.
